@@ -1,23 +1,24 @@
-```html
+'
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sai Om Jewellers</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
 *{
 margin:0;
 padding:0;
 box-sizing:border-box;
-font-family:Arial, sans-serif;
 }
 
 body{
-background:#000;
+background: radial-gradient(circle at center, #111 0%, #000 70%, #000 100%);
 color:#fff;
 overflow-x:hidden;
+font-family:'Cinzel', serif;
 }
 
 /* Splash Screen */
@@ -26,22 +27,156 @@ overflow-x:hidden;
 position:fixed;
 width:100%;
 height:100vh;
-background:black;
-color:gold;
+top:0;
+left:0;
+overflow:hidden;
+}
+
+#splash .overlay{
+position:absolute;
+width:100%;
+height:100%;
+background:radial-gradient(circle, transparent 40%, rgba(0,0,0,0.95));
+}
+
+#splash .wrapper{
+text-align:center;
+position:relative;
+z-index:10;
+}
+
+#splash .ring{
+position:absolute;
+width:420px;
+height:420px;
+border-radius:50%;
+border:1px solid rgba(212,175,55,0.25);
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+animation:rotate 18s linear infinite;
+}
+
+#splash .ring::after{
+content:'';
+position:absolute;
+inset:22px;
+border-radius:50%;
+border:1px dashed rgba(212,175,55,0.5);
+}
+
+#splash .light{
+position:absolute;
+top:50%;
+left:-160%;
+width:160%;
+height:2px;
+background:linear-gradient(
+90deg,
+transparent,
+rgba(255,255,255,0.9),
+rgba(212,175,55,0.4),
+transparent
+);
+transform:translateY(-50%);
+animation:shine 3s linear infinite;
+}
+
+#splash .center{
+width:260px;
+height:260px;
+border-radius:50%;
+background:rgba(0,0,0,0.7);
 display:flex;
 justify-content:center;
 align-items:center;
-flex-direction:column;
-z-index:9999;
+margin:auto;
+box-shadow:
+0 0 50px rgba(212,175,55,0.18),
+inset 0 0 30px rgba(212,175,55,0.12);
+animation:zoom 1.5s ease;
+}
+
+#splash .logo{
+font-size:95px;
+color:#D4AF37;
+letter-spacing:12px;
+text-shadow:
+0 0 15px rgba(212,175,55,0.8),
+0 0 35px rgba(212,175,55,0.5);
 }
 
 #splash h1{
-font-size:40px;
-margin-bottom:10px;
+margin-top:55px;
+color:#fff;
+font-size:46px;
+letter-spacing:10px;
+animation:fadeUp 2s ease;
 }
 
 #splash p{
-color:white;
+margin-top:18px;
+color:#bdbdbd;
+font-size:14px;
+letter-spacing:6px;
+animation:fadeUp 2.5s ease;
+}
+
+#splash .line{
+width:0;
+height:2px;
+background:linear-gradient(to right, transparent, #D4AF37, transparent);
+margin:40px auto;
+animation:lineGrow 2s forwards;
+}
+
+#splash .loader{
+display:flex;
+justify-content:center;
+gap:10px;
+}
+
+#splash .loader span{
+width:8px;
+height:8px;
+border-radius:50%;
+background:#D4AF37;
+box-shadow:0 0 12px #D4AF37;
+animation:bounce 0.8s infinite alternate;
+}
+
+#splash .loader span:nth-child(2){animation-delay:0.2s;}
+#splash .loader span:nth-child(3){animation-delay:0.4s;}
+
+@keyframes rotate{
+from{transform:translate(-50%,-50%) rotate(0deg);}
+to{transform:translate(-50%,-50%) rotate(360deg);}
+}
+
+@keyframes shine{
+0%{left:-160%; opacity:0;}
+50%{opacity:1;}
+100%{left:160%; opacity:0;}
+}
+
+@keyframes zoom{
+from{transform:scale(0.7); opacity:0;}
+to{transform:scale(1); opacity:1;}
+}
+
+@keyframes fadeUp{
+from{opacity:0; transform:translateY(25px);}
+to{opacity:1; transform:translateY(0);}
+}
+
+@keyframes lineGrow{
+from{width:0;}
+to{width:360px;}
+}
+
+@keyframes bounce{
+from{transform:translateY(0); opacity:0.4;}
+to{transform:translateY(-10px); opacity:1;}
 }
 
 /* Main Content */
@@ -125,6 +260,7 @@ border:none;
 cursor:pointer;
 border-radius:30px;
 font-weight:bold;
+min-width:120px;
 }
 
 /* Product Grid */
@@ -357,8 +493,22 @@ gap:10px;
 <!-- Splash Screen -->
 
 <div id="splash">
-<h1>Sai Om Jewellers</h1>
-<p>Welcome to Luxury Jewellery</p>
+<div class="overlay"></div>
+<div class="wrapper">
+<div class="ring"></div>
+<div class="light"></div>
+<div class="center">
+<div class="logo">SOJ</div>
+</div>
+<h1>SAI OM JEWELLERS</h1>
+<p>LUXURY • TRUST • PURITY</p>
+<div class="line"></div>
+<div class="loader">
+<span></span>
+<span></span>
+<span></span>
+</div>
+</div>
 </div>
 
 <!-- Main Content -->
@@ -382,14 +532,8 @@ gap:10px;
 <!-- Categories -->
 
 <div class="categories">
-<button>Gold</button>
-<button>Silver</button>
-<button>Rings</button>
-<button>Chains</button>
-<button>Bangles</button>
-<button>Necklace</button>
-<button>Earrings</button>
-<button>Bridal</button>
+<button onclick="filterByMetal('Gold')">Gold</button>
+<button onclick="filterByMetal('Silver')">Silver</button>
 </div>
 
 <!-- Products -->
@@ -471,7 +615,7 @@ window.onload = function(){
 setTimeout(function(){
 document.getElementById("splash").style.display = "none";
 document.getElementById("main").style.display = "block";
-}, 2000);
+}, 3000);
 }
 
 /* Scroll to products */
@@ -520,6 +664,8 @@ let cart = JSON.parse(localStorage.getItem("cart")) || [];
 let wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
 let orders = JSON.parse(localStorage.getItem("orders")) || [];
 let currentOrderProductId = null;
+let filteredProducts = products;
+let currentFilter = null;
 
 function saveCart(){
 localStorage.setItem("cart",JSON.stringify(cart));
@@ -539,6 +685,14 @@ saveCart();
 saveWishlist();
 displayOrders();
 
+/* Filter Products by Metal */
+
+function filterByMetal(metal){
+currentFilter = metal;
+filteredProducts = products.filter(p => p.metal === metal);
+renderProducts();
+}
+
 /* Render Products */
 
 function renderProducts(){
@@ -547,7 +701,9 @@ let container = document.getElementById("productContainer");
 
 container.innerHTML = "";
 
-products.forEach(product=>{
+let productsToDisplay = currentFilter ? filteredProducts : products;
+
+productsToDisplay.forEach(product=>{
 
 let wishLabel = wishlist.includes(product.id) ? '♥ Added' : '♡ Wishlist';
 
@@ -844,4 +1000,3 @@ alert("Rates Updated");
 
 </body>
 </html>
-```
