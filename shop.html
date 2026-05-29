@@ -440,6 +440,8 @@ gap:10px;
 
 <input type="text" id="phallmark" class="admin-input" placeholder="Hallmark Information">
 
+<input type="text" id="ppurity" class="admin-input" placeholder="Purity (e.g., 22K, 24K, 18K)">
+
 <button class="admin-btn" onclick="addProduct()">
 Add Product
 </button>
@@ -563,6 +565,8 @@ onclick="openModal('${product.image}')">
 <p>Metal: ${product.metal}</p>
 
 <p>Weight: ${product.weight}g</p>
+
+${product.purity ? `<p>Purity: ${product.purity}</p>` : ''}
 
 <p>⭐ ${product.rating} (${product.reviews})</p>
 
@@ -778,6 +782,8 @@ let details = document.getElementById("pdetails").value;
 
 let hallmark = document.getElementById("phallmark").value;
 
+let purity = document.getElementById("ppurity").value;
+
 let newProduct = {
 
 id:Date.now(),
@@ -793,6 +799,8 @@ image:image,
 details: details,
 
 hallmark: hallmark,
+
+purity: purity,
 
 rating:5,
 
