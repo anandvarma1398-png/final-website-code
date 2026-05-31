@@ -243,6 +243,31 @@ color:#ffdd55;
 margin-top:8px;
 }
 
+/* Search Bar */
+
+.search-bar{
+padding:15px;
+background:#111;
+display:flex;
+justify-content:center;
+}
+
+.search-bar input{
+width:100%;
+max-width:640px;
+padding:14px 18px;
+border-radius:999px;
+border:1px solid #333;
+background:#0d0d0d;
+color:#fff;
+font-size:16px;
+outline:none;
+}
+
+.search-bar input::placeholder{
+color:#777;
+}
+
 /* Categories */
 
 .categories{
@@ -254,13 +279,14 @@ background:#111;
 }
 
 .categories button{
-padding:10px 20px;
+padding:8px 16px;
 background:gold;
 border:none;
 cursor:pointer;
-border-radius:30px;
+border-radius:26px;
 font-weight:bold;
-min-width:120px;
+font-size:0.95rem;
+min-width:100px;
 }
 
 /* Product Grid */
@@ -313,11 +339,12 @@ flex-wrap:wrap;
 
 .btns button{
 flex:1;
-padding:10px;
+padding:8px;
 border:none;
 cursor:pointer;
 border-radius:5px;
 font-weight:bold;
+font-size:0.95rem;
 }
 
 .cart-btn{
@@ -529,11 +556,19 @@ gap:10px;
 </div>
 </header>
 
+<!-- Search -->
+<div class="search-bar">
+<input type="search" id="productSearch" placeholder="Search catalog by name, metal, or category..." oninput="searchProducts()">
+</div>
+
 <!-- Categories -->
 
 <div class="categories">
+<button onclick="filterByMetal('All')">All</button>
 <button onclick="filterByMetal('Gold')">Gold</button>
 <button onclick="filterByMetal('Silver')">Silver</button>
+<button onclick="filterByMetal('Mani')">Mani</button>
+<button onclick="filterByMetal('Gifting')">Gifting Item</button>
 </div>
 
 <!-- Products -->
@@ -574,9 +609,27 @@ gap:10px;
 
 <input type="text" id="pname" class="admin-input" placeholder="Product Name">
 
-<input type="number" id="pweight" class="admin-input" placeholder="Weight">
+<input type="number" id="pweight" class="admin-input" placeholder="Weight (grams)">
 
-<input type="text" id="pmetal" class="admin-input" placeholder="Metal">
+<select id="pmetal" class="admin-input" onchange="updateAdminCategories()" required>
+<option value="">Select Product Type</option>
+<option value="Gold">Gold</option>
+<option value="Silver">Silver</option>
+<option value="Mani">Mani</option>
+</select>
+
+<select id="pcategory" class="admin-input" onchange="updateAdminManiSizes()" required disabled>
+<option value="">Select Category</option>
+</select>
+
+<select id="pmaniSize" class="admin-input" style="display:none;" disabled>
+<option value="">Select Mani Size/Type</option>
+</select>
+
+<select id="pgifting" class="admin-input">
+<option value="No">Gifting Item? No</option>
+<option value="Yes">Gifting Item? Yes</option>
+</select>
 
 <input type="text" id="pimg" class="admin-input" placeholder="Image URL">
 
@@ -632,6 +685,7 @@ let products = JSON.parse(localStorage.getItem("products")) || [
 id:1,
 name:"Luxury Gold Ring",
 metal:"Gold",
+category:"Ring",
 weight:12,
 image:"https://images.unsplash.com/photo-1617038220319-276d3cfab638",
 rating:4.8,
@@ -642,6 +696,7 @@ reviews:120
 id:2,
 name:"Silver Necklace",
 metal:"Silver",
+category:"Necklace",
 weight:30,
 image:"https://images.unsplash.com/photo-1605100804763-247f67b3557e",
 rating:4.5,
@@ -649,6 +704,46 @@ reviews:80
 }
 
 ];
+
+const goldCategories = [
+"Necklace",
+"Pendant",
+"Watti",
+"Short Mangalsutra",
+"Long Mangalsutra",
+"Choker",
+"Gold Mani",
+"Chain",
+"Bracelet & Kada",
+"Earring",
+"Bali",
+"Kanvel",
+"Tops",
+"Ring",
+"Bangles",
+"Nath",
+"Nose Ring"
+];
+
+const silverCategories = [
+"Chain",
+"Gents Ring",
+"Ladies Ring",
+"Tops",
+"Payal",
+"Bracelet",
+"Kada",
+"Utensils",
+"Murti"
+];
+
+const maniCategories = {
+"Gol Mani":["20/1 gm","16/1 gm","14/1 gm","12/1 gm"],
+"Machine Mani":["12/1 gm","10/1 gm","8/1 gm","6/1 gm","4/1 gm","2/1 gm","1/1 gm"],
+"Pungli Mani":["8/1 gm","6/1 gm"],
+"Karle Mani":["10/1 gm","8/1 gm"],
+"Nakshi Mani":["10/1 gm","8/1 gm"]
+};
 
 /* Rates */
 
@@ -661,11 +756,41 @@ document.getElementById("silverRate").innerText = silverRate;
 /* Cart */
 
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
+if(Array.isArray(cart) && cart.some(item => typeof item === 'number')){
+ cart = cart.map(item => typeof item === 'number' ? { id: item, quantity: 1 } : item);
+}
 let wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
 let orders = JSON.parse(localStorage.getItem("orders")) || [];
 let currentOrderProductId = null;
-let filteredProducts = products;
+let selectedOrderQuantity = null;
 let currentFilter = null;
+let currentSearch = "";
+
+function getVisibleProducts(){
+let result = products;
+
+if(currentFilter){
+if(currentFilter.type === 'metal'){
+result = result.filter(p => p.metal === currentFilter.value);
+} else if(currentFilter.type === 'mani'){
+result = result.filter(p => p.metal === 'Mani' && p.category === currentFilter.category && p.maniSize === currentFilter.size);
+} else if(currentFilter.type === 'gifting'){
+result = result.filter(p => p.gifting === true);
+}
+}
+
+if(currentSearch){
+const query = currentSearch.toLowerCase();
+result = result.filter(p => {
+return p.name.toLowerCase().includes(query) ||
+(p.category && p.category.toLowerCase().includes(query)) ||
+(p.metal && p.metal.toLowerCase().includes(query)) ||
+(p.details && p.details.toLowerCase().includes(query));
+});
+}
+
+return result;
+}
 
 function saveCart(){
 localStorage.setItem("cart",JSON.stringify(cart));
@@ -685,12 +810,52 @@ saveCart();
 saveWishlist();
 displayOrders();
 
+function getPromptSelection(items, message){
+let options = items.map((item,index)=>`${index + 1}. ${item}`).join("\n");
+let response = prompt(`${message}\n\n${options}\n\nEnter the number or exact name:`);
+if(response === null) return null;
+response = response.trim();
+if(!response) return null;
+let index = parseInt(response, 10);
+if(!isNaN(index) && index >= 1 && index <= items.length) return items[index - 1];
+let match = items.find(item => item.toLowerCase() === response.toLowerCase());
+return match || null;
+}
+
 /* Filter Products by Metal */
 
 function filterByMetal(metal){
-currentFilter = metal;
-filteredProducts = products.filter(p => p.metal === metal);
+if(metal === 'All'){
+currentFilter = null;
 renderProducts();
+return;
+}
+
+if(metal === 'Mani'){
+let category = getPromptSelection(Object.keys(maniCategories), 'Select Mani category');
+if(!category) return;
+let size = getPromptSelection(maniCategories[category], `Select size/type for ${category}`);
+if(!size) return;
+currentFilter = {
+ type: 'mani',
+ category: category,
+ size: size
+};
+renderProducts();
+return;
+}
+
+if(metal === 'Gifting'){
+ currentFilter = { type: 'gifting' };
+ renderProducts();
+ return;
+}
+
+currentFilter = {
+ type: 'metal',
+ value: metal
+};
+ renderProducts();
 }
 
 /* Render Products */
@@ -701,7 +866,12 @@ let container = document.getElementById("productContainer");
 
 container.innerHTML = "";
 
-let productsToDisplay = currentFilter ? filteredProducts : products;
+let productsToDisplay = getVisibleProducts();
+
+if(productsToDisplay.length === 0){
+container.innerHTML = `<div style="color:#ccc; padding:40px; font-size:18px; text-align:center; width:100%;">No products found.</div>`;
+return;
+}
 
 productsToDisplay.forEach(product=>{
 
@@ -720,7 +890,13 @@ onclick="openModal('${product.image}')">
 
 <p>Metal: ${product.metal}</p>
 
-<p>Weight: ${product.weight}g</p>
+${product.category ? `<p>Category: ${product.category}</p>` : ''}
+
+${product.gifting ? `<p style="color:#ffd700; font-weight:bold;">Gifting Item</p>` : ''}
+
+${product.weight ? `<p>Weight: ${product.weight}g</p>` : ''}
+
+${product.maniSize ? `<p>Size/Type: ${product.maniSize}</p>` : ''}
 
 ${product.purity ? `<p>Purity: ${product.purity}</p>` : ''}
 
@@ -757,16 +933,36 @@ Buy
 
 renderProducts();
 
+function searchProducts(){
+currentSearch = document.getElementById("productSearch").value.trim();
+renderProducts();
+}
+
+function requestQuantity(product){
+if(product.metal === 'Gold' || product.metal === 'Silver'){
+let quantityValue = prompt(`Enter quantity in grams for ${product.name}`,
+product.weight ? product.weight : '1');
+if(quantityValue === null) return null;
+let quantity = parseFloat(quantityValue);
+if(isNaN(quantity) || quantity <= 0){
+alert('Please enter a valid quantity in grams.');
+return null;
+}
+return quantity;
+}
+return product.weight || 1;
+}
+
 /* Add Cart */
 
 function addToCart(id){
-
-cart.push(id);
-
+let product = products.find(item => item.id === id);
+if(!product) return;
+let quantity = requestQuantity(product);
+if(quantity === null) return;
+cart.push({ id, quantity });
 saveCart();
-
-alert("Added To Cart");
-
+alert(`Added ${quantity}g of ${product.name} to cart.`);
 }
 
 /* Buy */
@@ -774,10 +970,12 @@ alert("Added To Cart");
 function openOrderForm(id){
 currentOrderProductId = id;
 let product = products.find(item=>item.id === id);
-
 if(!product) return;
+let quantity = requestQuantity(product);
+if(quantity === null) return;
+selectedOrderQuantity = quantity;
 
-let details = `<strong>${product.name}</strong><br>Metal: ${product.metal}<br>Weight: ${product.weight}g`;
+let details = `<strong>${product.name}</strong><br>Metal: ${product.metal}<br>Quantity: ${quantity}g`;
 if(product.details) details += `<br>${product.details}`;
 if(product.hallmark) details += `<br><span class="hallmark">Hallmark: ${product.hallmark}</span>`;
 
@@ -802,7 +1000,8 @@ orderId: Date.now(),
 customerName: name,
 contactNumber: contact,
 address: address,
-product: product
+product: product,
+quantity: selectedOrderQuantity
 });
 
 saveOrders();
@@ -821,7 +1020,30 @@ document.getElementById("orderModal").style.display = "none";
 }
 
 function viewCart(){
-alert("Cart Items: " + cart.length);
+if(cart.length === 0){
+alert("Your cart is empty.");
+return;
+}
+
+let list = cart.map((item, index) => {
+let product = products.find(product => product.id === item.id);
+let quantity = item.quantity ? `${item.quantity}g` : '';
+return product ? `${index + 1}. ${product.name} ${quantity}` : `${index + 1}. Item #${item.id}`;
+}).join("\n");
+
+let choice = prompt(`Cart Items:\n${list}\n\nEnter the item number to remove, or leave blank to keep all.`);
+if(choice === null || choice.trim() === "") return;
+
+let removeIndex = parseInt(choice, 10) - 1;
+if(isNaN(removeIndex) || removeIndex < 0 || removeIndex >= cart.length){
+alert("Invalid selection.");
+return;
+}
+
+let removedItem = cart.splice(removeIndex, 1)[0];
+saveCart();
+let removedProduct = products.find(item => item.id === removedItem.id);
+alert(removedProduct ? `${removedProduct.name} removed from cart.` : "Item removed from cart.");
 }
 
 function openWishlist(){
@@ -830,12 +1052,25 @@ alert("Your wishlist is empty.");
 return;
 }
 
-let list = wishlist.map(id => {
-let product = products.find(item=>item.id === id);
-return product ? `• ${product.name}` : null;
-}).filter(Boolean).join("\n");
+let list = wishlist.map((id, index) => {
+let product = products.find(item => item.id === id);
+return product ? `${index + 1}. ${product.name}` : `${index + 1}. Item #${id}`;
+}).join("\n");
 
-alert("Wishlist:\n" + list);
+let choice = prompt(`Wishlist:\n${list}\n\nEnter the item number to remove, or leave blank to keep all.`);
+if(choice === null || choice.trim() === "") return;
+
+let removeIndex = parseInt(choice, 10) - 1;
+if(isNaN(removeIndex) || removeIndex < 0 || removeIndex >= wishlist.length){
+alert("Invalid selection.");
+return;
+}
+
+let removedId = wishlist.splice(removeIndex, 1)[0];
+saveWishlist();
+renderProducts();
+let removedProduct = products.find(item => item.id === removedId);
+alert(removedProduct ? `${removedProduct.name} removed from wishlist.` : "Item removed from wishlist.");
 }
 
 function toggleWishlist(id){
@@ -861,17 +1096,9 @@ return;
 }
 
 container.innerHTML = orders.map(order => {
-let product = order.product ? `<div><strong>Product:</strong> ${order.product.name}</div><div>Metal: ${order.product.metal}</div><div>Weight: ${order.product.weight}g</div>${order.product.details ? `<div>${order.product.details}</div>` : ''}${order.product.hallmark ? `<div class=\"hallmark\"><strong>Hallmark:</strong> ${order.product.hallmark}</div>` : ''}` : '<div>Product details unavailable</div>';
+let product = order.product ? `<div><strong>Product:</strong> ${order.product.name}</div><div>Metal: ${order.product.metal}</div><div>Quantity: ${order.quantity ? order.quantity + 'g' : order.product.weight ? order.product.weight + 'g' : 'N/A'}</div>${order.product.details ? `<div>${order.product.details}</div>` : ''}${order.product.hallmark ? `<div class=\"hallmark\"><strong>Hallmark:</strong> ${order.product.hallmark}</div>` : ''}` : '<div>Product details unavailable</div>';
 return `<div style="margin-bottom:18px;padding:15px;border:1px solid #333;border-radius:14px;background:#121212;"><div><strong>Customer:</strong> ${order.customerName}</div><div><strong>Contact:</strong> ${order.contactNumber}</div><div><strong>Address:</strong> ${order.address}</div>${product}</div>`;
 }).join('');
-}
-
-/* Cart View */
-
-function viewCart(){
-
-alert("Cart Items: " + cart.length);
-
 }
 
 /* Image Modal */
@@ -920,25 +1147,103 @@ return "https://lh3.googleusercontent.com/d/" + match[1];
 return link;
 }
 
+function updateAdminCategories(){
+let metal = document.getElementById('pmetal').value;
+let categorySelect = document.getElementById('pcategory');
+let maniSizeSelect = document.getElementById('pmaniSize');
+categorySelect.innerHTML = '<option value="">Select Category</option>';
+maniSizeSelect.style.display = 'none';
+maniSizeSelect.innerHTML = '<option value="">Select Mani Size/Type</option>';
+maniSizeSelect.disabled = true;
+
+if(!metal){
+categorySelect.disabled = true;
+return;
+}
+
+categorySelect.disabled = false;
+
+if(metal === 'Gold'){
+goldCategories.forEach(cat => {
+categorySelect.innerHTML += `<option value="${cat}">${cat}</option>`;
+});
+} else if(metal === 'Silver'){
+silverCategories.forEach(cat => {
+categorySelect.innerHTML += `<option value="${cat}">${cat}</option>`;
+});
+} else if(metal === 'Mani'){
+Object.keys(maniCategories).forEach(cat => {
+categorySelect.innerHTML += `<option value="${cat}">${cat}</option>`;
+});
+}
+}
+
+function updateAdminManiSizes(){
+let metal = document.getElementById('pmetal').value;
+let category = document.getElementById('pcategory').value;
+let maniSizeSelect = document.getElementById('pmaniSize');
+if(metal === 'Mani' && category && maniCategories[category]){
+maniSizeSelect.style.display = 'block';
+maniSizeSelect.disabled = false;
+maniSizeSelect.innerHTML = '<option value="">Select Mani Size/Type</option>';
+maniCategories[category].forEach(size => {
+maniSizeSelect.innerHTML += `<option value="${size}">${size}</option>`;
+});
+} else {
+maniSizeSelect.style.display = 'none';
+maniSizeSelect.disabled = true;
+maniSizeSelect.innerHTML = '<option value="">Select Mani Size/Type</option>';
+}
+}
+
+function updateAdminManiSizes(){
+let metal = document.getElementById('pmetal').value;
+let category = document.getElementById('pcategory').value;
+let maniSizeSelect = document.getElementById('pmaniSize');
+if(metal === 'Mani' && category && maniCategories[category]){
+maniSizeSelect.style.display = 'block';
+maniSizeSelect.innerHTML = '<option value="">Select Mani Size/Type</option>';
+maniCategories[category].forEach(size => {
+maniSizeSelect.innerHTML += `<option value="${size}">${size}</option>`;
+});
+} else {
+maniSizeSelect.style.display = 'none';
+maniSizeSelect.innerHTML = '<option value="">Select Mani Size/Type</option>';
+}
+}
+
 /* Add Product */
 
 function addProduct(){
 
-let name = document.getElementById("pname").value;
-
-let weight = document.getElementById("pweight").value;
-
+let name = document.getElementById("pname").value.trim();
+let weight = document.getElementById("pweight").value.trim();
 let metal = document.getElementById("pmetal").value;
-
+let category = document.getElementById("pcategory").value;
+let maniSize = document.getElementById("pmaniSize").value;
+let gifting = document.getElementById("pgifting") ? document.getElementById("pgifting").value : 'No';
 let image = document.getElementById("pimg").value;
-
 image = convertDriveLink(image);
-
 let details = document.getElementById("pdetails").value;
-
 let hallmark = document.getElementById("phallmark").value;
-
 let purity = document.getElementById("ppurity").value;
+
+if(!name || !metal || !category){
+alert("Please complete the product name, metal, and category fields.");
+return;
+}
+
+if(metal === 'Mani'){
+if(!maniSize){
+alert("Please select the Mani size/type.");
+return;
+}
+} else {
+if(!weight || isNaN(parseFloat(weight)) || parseFloat(weight) <= 0){
+alert("Please enter a valid weight for Gold or Silver products.");
+return;
+}
+}
 
 let newProduct = {
 
@@ -946,9 +1251,15 @@ id:Date.now(),
 
 name:name,
 
-weight:weight,
-
 metal:metal,
+
+category:category,
+
+weight: metal === 'Mani' ? null : parseFloat(weight),
+
+maniSize: metal === 'Mani' ? maniSize : null,
+
+gifting: gifting === 'Yes',
 
 image:image,
 
