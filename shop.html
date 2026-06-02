@@ -275,8 +275,35 @@ background:#222;
 
 .rate-panel{
 display:flex;
-gap:20px;
-font-size:14px;
+gap:12px;
+align-items:center;
+}
+
+.rate-card{
+background:rgba(212,175,55,0.08);
+border:1px solid rgba(212,175,55,0.2);
+border-radius:16px;
+padding:14px 18px;
+min-width:140px;
+box-shadow:0 12px 30px rgba(0,0,0,0.25);
+}
+
+.rate-card .rate-label{
+font-size:0.72rem;
+letter-spacing:0.18em;
+text-transform:uppercase;
+color:#f5e0a7;
+margin-bottom:6px;
+}
+
+.rate-card .rate-value{
+font-size:1rem;
+font-weight:700;
+color:#ffffff;
+}
+
+.rate-card .rate-value span{
+color:#b8ff92;
 }
 
 .wishlist-btn{
@@ -623,8 +650,14 @@ gap:10px;
 
 <div class="header-actions">
 <div class="rate-panel">
-<div>Gold: ₹ <span id="goldRate">6500</span>/g</div>
-<div>Silver: ₹ <span id="silverRate">80</span>/g</div>
+<div class="rate-card">
+<div class="rate-label">Gold Rate</div>
+<div class="rate-value">₹ <span id="goldRate">6500</span> /g</div>
+</div>
+<div class="rate-card">
+<div class="rate-label">Silver Rate</div>
+<div class="rate-value">₹ <span id="silverRate">80</span> /g</div>
+</div>
 </div>
 <button class="wishlist-btn" onclick="openWishlist()">Wishlist (<span id="wishlistCount">0</span>)</button>
 </div>
