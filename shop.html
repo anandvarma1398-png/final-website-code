@@ -275,29 +275,29 @@ background:#222;
 
 .rate-panel{
 display:flex;
-gap:12px;
+gap:10px;
 align-items:center;
 }
 
 .rate-card{
 background:rgba(212,175,55,0.08);
 border:1px solid rgba(212,175,55,0.2);
-border-radius:16px;
-padding:14px 18px;
-min-width:140px;
-box-shadow:0 12px 30px rgba(0,0,0,0.25);
+border-radius:14px;
+padding:10px 14px;
+min-width:120px;
+box-shadow:0 10px 24px rgba(0,0,0,0.22);
 }
 
 .rate-card .rate-label{
-font-size:0.72rem;
-letter-spacing:0.18em;
+font-size:0.68rem;
+letter-spacing:0.16em;
 text-transform:uppercase;
 color:#f5e0a7;
-margin-bottom:6px;
+margin-bottom:4px;
 }
 
 .rate-card .rate-value{
-font-size:1rem;
+font-size:0.92rem;
 font-weight:700;
 color:#ffffff;
 }
@@ -702,10 +702,25 @@ gap:10px;
 <div class="order-product" id="orderProductDetails"></div>
 <form class="order-form" onsubmit="event.preventDefault(); submitOrder();">
 <input type="text" id="customerName" placeholder="Customer Name" required>
+<input type="email" id="customerEmail" placeholder="Email Address" required>
 <input type="tel" id="customerContact" placeholder="Contact Number" required>
+<input type="text" id="customerPincode" placeholder="Pincode" required>
 <textarea id="customerAddress" placeholder="Address" rows="4" required></textarea>
+<select id="paymentMethod" required>
+<option value="COD">Cash on Delivery (COD)</option>
+</select>
 <button type="submit">Place Order</button>
 </form>
+</div>
+</div>
+
+<div class="modal" id="cartModal" onclick="if(event.target===this) closeCartModal()">
+<div class="order-card" style="max-width:640px; width:100%;">
+<div class="close-order" onclick="closeCartModal()">✕</div>
+<h2>Your Cart</h2>
+<div id="cartItemsList" style="margin-top:16px; max-height:320px; overflow:auto; color:#fff;"></div>
+<div id="cartTotal" style="margin-top:18px; font-size:1rem; font-weight:700; color:#fff;"></div>
+<button type="button" class="wishlist-btn" style="width:100%; margin-top:20px;" onclick="checkoutCart()">Checkout</button>
 </div>
 </div>
 
@@ -870,6 +885,7 @@ let wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
 let orders = JSON.parse(localStorage.getItem("orders")) || [];
 let currentOrderProductId = null;
 let selectedOrderQuantity = null;
+let cartCheckout = false;
 let currentFilter = null;
 let currentSearch = "";
 
@@ -1048,18 +1064,13 @@ ${product.hallmark ? `<p class="hallmark">Hallmark: ${product.hallmark}</p>` : '
 
 <div class="btns">
 
-<button class="cart-btn"
+<button type="button" class="cart-btn" data-product-id="${product.id}"
 onclick="addToCart(${product.id})">
 Cart
 </button>
 
-<button class="wish-btn" onclick="toggleWishlist(${product.id})">
+<button type="button" class="wish-btn" data-product-id="${product.id}" onclick="toggleWishlist(${product.id})">
 ${wishLabel}
-</button>
-
-<button class="buy-btn"
-onclick="openOrderForm(${product.id})">
-Buy
 </button>
 
 </div>
@@ -1074,83 +1085,162 @@ Buy
 
 renderProducts();
 
+document.getElementById("productContainer").addEventListener("click", function(event){
+ let button = event.target.closest('button');
+ if(!button || !button.dataset.productId) return;
+ let id = Number(button.dataset.productId);
+ if(button.classList.contains('cart-btn')){
+   addToCart(id);
+ }
+ if(button.classList.contains('buy-btn')){
+   openOrderForm(id);
+ }
+});
+
 function searchProducts(){
 currentSearch = document.getElementById("productSearch").value.trim();
 renderProducts();
 }
 
 function requestQuantity(product){
+if(product.weight){
+ return product.weight;
+}
 if(product.metal === 'Gold' || product.metal === 'Silver'){
-let quantityValue = prompt(`Enter quantity in grams for ${product.name}`,
-product.weight ? product.weight : '1');
-if(quantityValue === null) return null;
-let quantity = parseFloat(quantityValue);
-if(isNaN(quantity) || quantity <= 0){
-alert('Please enter a valid quantity in grams.');
-return null;
+ let quantityValue = prompt(`Enter quantity in grams for ${product.name}`, '1');
+ if(quantityValue === null) return null;
+ let quantity = parseFloat(quantityValue);
+ if(isNaN(quantity) || quantity <= 0){
+  alert('Please enter a valid quantity in grams.');
+  return null;
+ }
+ return quantity;
 }
-return quantity;
-}
-return product.weight || 1;
+return 1;
 }
 
 /* Add Cart */
 
 function addToCart(id){
-let product = products.find(item => item.id === id);
-if(!product) return;
-let quantity = requestQuantity(product);
-if(quantity === null) return;
-cart.push({ id, quantity });
-saveCart();
-alert(`Added ${quantity}g of ${product.name} to cart.`);
+ let product = products.find(item => item.id === id);
+ if(!product) return;
+ if(cart.some(item => item.id === id)){
+  alert(`${product.name} is already in your cart.`);
+  return;
+ }
+ let quantity = requestQuantity(product);
+ if(quantity === null) return;
+ cart.push({ id, quantity });
+ saveCart();
+ alert(`Added ${quantity}g of ${product.name} to cart.`);
 }
 
 /* Buy */
 
 function openOrderForm(id){
+cartCheckout = false;
 currentOrderProductId = id;
 let product = products.find(item=>item.id === id);
 if(!product) return;
 let quantity = requestQuantity(product);
 if(quantity === null) return;
 selectedOrderQuantity = quantity;
+renderOrderDetails();
+document.getElementById("orderModal").style.display = "flex";
+}
 
-let details = `<strong>${product.name}</strong><br>Metal: ${product.metal}<br>Quantity: ${quantity}g`;
+function renderOrderDetails(){
+let details = "";
+if(cartCheckout){
+if(cart.length === 0){
+details = `<div style="color:#ccc;">Your cart is empty.</div>`;
+} else {
+details = `<div style="margin-bottom:12px;">Cart items ready for checkout:</div><ul style="padding-left:18px; margin:0;">`;
+cart.forEach(item => {
+ let product = products.find(p => p.id === item.id);
+ if(product){
+   details += `<li style="margin-bottom:8px;"><strong>${product.name}</strong> (${product.metal}) — ${item.quantity}g</li>`;
+ } else {
+   details += `<li style="margin-bottom:8px;">Item #${item.id} — ${item.quantity}g</li>`;
+ }
+});
+details += `</ul><div style="margin-top:12px; font-weight:700;">Payment: Cash on Delivery (COD)</div>`;
+}
+} else {
+let product = products.find(item=>item.id === currentOrderProductId);
+if(!product) return;
+details = `<strong>${product.name}</strong><br>Metal: ${product.metal}<br>Quantity: ${selectedOrderQuantity}g`;
 if(product.details) details += `<br>${product.details}`;
 if(product.hallmark) details += `<br><span class="hallmark">Hallmark: ${product.hallmark}</span>`;
-
+}
 document.getElementById("orderProductDetails").innerHTML = details;
-document.getElementById("orderModal").style.display = "flex";
 }
 
 function submitOrder(){
 let name = document.getElementById("customerName").value.trim();
+let email = document.getElementById("customerEmail").value.trim();
 let contact = document.getElementById("customerContact").value.trim();
 let address = document.getElementById("customerAddress").value.trim();
+let pincode = document.getElementById("customerPincode").value.trim();
+let paymentMethod = document.getElementById("paymentMethod").value;
 
-if(!name || !contact || !address){
+if(!name || !email || !contact || !address || !pincode){
 alert("Please complete all fields.");
 return;
 }
 
-let product = products.find(item=>item.id === currentOrderProductId);
-
-orders.push({
-orderId: Date.now(),
-customerName: name,
-contactNumber: contact,
-address: address,
-product: product,
-quantity: selectedOrderQuantity
+let orderId = Date.now();
+if(cartCheckout){
+if(cart.length === 0){
+alert("Your cart is empty.");
+return;
+}
+let cartItems = cart.map(item => {
+ let product = products.find(p => p.id === item.id);
+ return {
+   id: item.id,
+   name: product ? product.name : `Item #${item.id}`,
+   metal: product ? product.metal : null,
+   quantity: item.quantity,
+ };
 });
-
+orders.push({
+ orderId,
+ orderDate: new Date().toISOString(),
+ customerName: name,
+ customerEmail: email,
+ contactNumber: contact,
+ address: address,
+ pincode: pincode,
+ paymentMethod: paymentMethod,
+ cartItems: cartItems
+});
+cart = [];
+saveCart();
+closeCartModal();
+} else {
+let product = products.find(item=>item.id === currentOrderProductId);
+orders.push({
+ orderId,
+ orderDate: new Date().toISOString(),
+ customerName: name,
+ customerEmail: email,
+ contactNumber: contact,
+ address: address,
+ pincode: pincode,
+ paymentMethod: paymentMethod,
+ product: product,
+ quantity: selectedOrderQuantity
+});
+}
 saveOrders();
 displayOrders();
 closeOrderModal();
 
 document.getElementById("customerName").value = "";
+document.getElementById("customerEmail").value = "";
 document.getElementById("customerContact").value = "";
+document.getElementById("customerPincode").value = "";
 document.getElementById("customerAddress").value = "";
 
 alert("Order placed successfully.");
@@ -1165,26 +1255,57 @@ if(cart.length === 0){
 alert("Your cart is empty.");
 return;
 }
-
-let list = cart.map((item, index) => {
-let product = products.find(product => product.id === item.id);
-let quantity = item.quantity ? `${item.quantity}g` : '';
-return product ? `${index + 1}. ${product.name} ${quantity}` : `${index + 1}. Item #${item.id}`;
-}).join("\n");
-
-let choice = prompt(`Cart Items:\n${list}\n\nEnter the item number to remove, or leave blank to keep all.`);
-if(choice === null || choice.trim() === "") return;
-
-let removeIndex = parseInt(choice, 10) - 1;
-if(isNaN(removeIndex) || removeIndex < 0 || removeIndex >= cart.length){
-alert("Invalid selection.");
-return;
+renderCartItems();
+document.getElementById("cartModal").style.display = "flex";
 }
 
-let removedItem = cart.splice(removeIndex, 1)[0];
-saveCart();
-let removedProduct = products.find(item => item.id === removedItem.id);
-alert(removedProduct ? `${removedProduct.name} removed from cart.` : "Item removed from cart.");
+function renderCartItems(){
+let container = document.getElementById("cartItemsList");
+let totalElement = document.getElementById("cartTotal");
+if(cart.length === 0){
+ container.innerHTML = `<div style="color:#ccc; padding:20px;">Your cart is empty.</div>`;
+ totalElement.innerText = "";
+ return;
+}
+let total = 0;
+container.innerHTML = cart.map((item, index) => {
+ let product = products.find(p => p.id === item.id);
+ let rate = product && product.metal === 'Gold' ? goldRate : product && product.metal === 'Silver' ? silverRate : 0;
+ let subtotal = rate ? rate * item.quantity : 0;
+ total += subtotal;
+ return `<div style="margin-bottom:14px; padding:12px; border:1px solid rgba(255,255,255,0.08); border-radius:12px; position:relative;">
+   <button type="button" onclick="removeCartItem(${item.id})" style="position:absolute; top:10px; right:10px; width:24px; height:24px; border:none; border-radius:50%; background:rgba(255,255,255,0.14); color:#fff; cursor:pointer; font-weight:bold;">×</button>
+   <div style="font-weight:700;">${index + 1}. ${product ? product.name : `Item #${item.id}`}</div>
+   <div style="font-size:0.92rem; color:#ccc;">${product && product.metal ? `Metal: ${product.metal}` : ''} ${item.quantity ? `• ${item.quantity}g` : ''}</div>
+   ${rate ? `<div style="margin-top:4px; color:#f5e2a4;">Approx. ₹${subtotal.toFixed(2)}</div>` : ''}
+ </div>`;
+}).join('');
+totalElement.innerText = total ? `Estimated total: ₹${total.toFixed(2)}` : '';
+}
+
+function removeCartItem(id){
+ let index = cart.findIndex(item => item.id === id);
+ if(index === -1) return;
+ cart.splice(index, 1);
+ saveCart();
+ renderCartItems();
+}
+
+function checkoutCart(){
+if(cart.length === 0){
+alert("Your cart is empty.");
+return;
+}
+cartCheckout = true;
+currentOrderProductId = null;
+selectedOrderQuantity = null;
+closeCartModal();
+renderOrderDetails();
+document.getElementById("orderModal").style.display = "flex";
+}
+
+function closeCartModal(){
+document.getElementById("cartModal").style.display = "none";
 }
 
 function openWishlist(){
@@ -1240,6 +1361,27 @@ container.innerHTML = orders.map(order => {
 let product = order.product ? `<div><strong>Product:</strong> ${order.product.name}</div><div>Metal: ${order.product.metal}</div><div>Quantity: ${order.quantity ? order.quantity + 'g' : order.product.weight ? order.product.weight + 'g' : 'N/A'}</div>${order.product.details ? `<div>${order.product.details}</div>` : ''}${order.product.hallmark ? `<div class=\"hallmark\"><strong>Hallmark:</strong> ${order.product.hallmark}</div>` : ''}` : '<div>Product details unavailable</div>';
 return `<div style="margin-bottom:18px;padding:15px;border:1px solid #333;border-radius:14px;background:#121212;"><div><strong>Customer:</strong> ${order.customerName}</div><div><strong>Contact:</strong> ${order.contactNumber}</div><div><strong>Address:</strong> ${order.address}</div>${product}</div>`;
 }).join('');
+}
+
+function displayOrders(){
+ let container = document.getElementById("orderList");
+ if(orders.length === 0){
+  container.innerHTML = "No orders yet.";
+  return;
+ }
+ container.innerHTML = orders.map(order => {
+  let orderDetails = '';
+  if(order.cartItems){
+   orderDetails = `<div><strong>Cart Items:</strong></div>` + order.cartItems.map((item, index) => `
+     <div style="margin-bottom:8px;"><strong>${index + 1}.</strong> ${item.name}${item.metal ? ` (${item.metal})` : ''} — ${item.quantity}g</div>`).join('');
+  } else if(order.product){
+   orderDetails = `<div><strong>Product:</strong> ${order.product.name}</div><div>Metal: ${order.product.metal}</div><div>Quantity: ${order.quantity ? order.quantity + 'g' : order.product.weight ? order.product.weight + 'g' : 'N/A'}</div>${order.product.details ? `<div>${order.product.details}</div>` : ''}${order.product.hallmark ? `<div class="hallmark"><strong>Hallmark:</strong> ${order.product.hallmark}</div>` : ''}`;
+  } else {
+   orderDetails = '<div>Product details unavailable</div>';
+  }
+  let orderTime = order.orderDate ? new Date(order.orderDate).toLocaleString() : 'N/A';
+  return `<div style="margin-bottom:18px;padding:15px;border:1px solid #333;border-radius:14px;background:#121212;"><div><strong>Order ID:</strong> ${order.orderId}</div><div><strong>Order Time:</strong> ${orderTime}</div><div><strong>Customer:</strong> ${order.customerName}</div><div><strong>Email:</strong> ${order.customerEmail || 'N/A'}</div><div><strong>Contact:</strong> ${order.contactNumber}</div><div><strong>Address:</strong> ${order.address}</div><div><strong>Pincode:</strong> ${order.pincode || 'N/A'}</div><div><strong>Payment:</strong> ${order.paymentMethod || 'COD'}</div>${orderDetails}</div>`;
+ }).join('');
 }
 
 /* Image Modal */
