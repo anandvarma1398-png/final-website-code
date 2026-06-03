@@ -15,10 +15,11 @@ box-sizing:border-box;
 }
 
 body{
-background: radial-gradient(circle at center, #111 0%, #000 70%, #000 100%);
+background: linear-gradient(135deg, #0a0a0a 0%, #1a1410 50%, #0a0a0a 100%);
 color:#fff;
 overflow-x:hidden;
 font-family:'Cinzel', serif;
+min-height:100vh;
 }
 
 /* Splash Screen */
@@ -325,38 +326,57 @@ color:#000;
 .product-detail{
 font-size:0.95rem;
 color:#ccc;
-margin:10px 0;
+margin:12px 0;
+line-height:1.5;
+padding:10px;
+background:rgba(212,175,55,0.05);
+border-left:3px solid #D4AF37;
+border-radius:6px;
 }
 
 .hallmark{
 font-size:0.92rem;
 color:#ffdd55;
-margin-top:8px;
+margin-top:12px;
+padding:10px;
+background:rgba(255,221,85,0.08);
+border:1px solid rgba(255,221,85,0.2);
+border-radius:8px;
+font-weight:600;
 }
 
 /* Search Bar */
 
 .search-bar{
-padding:15px;
-background:#111;
+padding:20px;
+background:linear-gradient(135deg, rgba(212,175,55,0.05) 0%, rgba(0,0,0,0.4) 100%);
 display:flex;
 justify-content:center;
+border-bottom:1px solid rgba(212,175,55,0.1);
 }
 
 .search-bar input{
 width:100%;
-max-width:640px;
-padding:14px 18px;
-border-radius:999px;
-border:1px solid #333;
-background:#0d0d0d;
+max-width:700px;
+padding:16px 22px;
+border-radius:12px;
+border:1.5px solid rgba(212,175,55,0.25);
+background:rgba(0,0,0,0.7);
 color:#fff;
 font-size:16px;
 outline:none;
+transition:all 0.3s ease;
+backdrop-filter:blur(5px);
+}
+
+.search-bar input:focus{
+border-color:#D4AF37;
+box-shadow:0 0 20px rgba(212,175,55,0.3);
+background:rgba(0,0,0,0.8);
 }
 
 .search-bar input::placeholder{
-color:#777;
+color:#888;
 }
 
 /* Categories */
@@ -364,126 +384,207 @@ color:#777;
 .categories{
 display:flex;
 overflow:auto;
-padding:15px;
-gap:10px;
-background:#111;
+padding:20px;
+gap:12px;
+background:rgba(0,0,0,0.6);
+border-bottom:1px solid rgba(212,175,55,0.1);
 }
 
 .categories button{
-padding:8px 16px;
-background:gold;
+padding:12px 20px;
+background:linear-gradient(135deg, #D4AF37 0%, #c99f2e 100%);
 border:none;
 cursor:pointer;
-border-radius:26px;
-font-weight:bold;
+border-radius:30px;
+font-weight:700;
 font-size:0.95rem;
-min-width:100px;
+color:#000;
+transition:all 0.3s ease;
+box-shadow:0 4px 15px rgba(212,175,55,0.2);
+min-width:auto;
+}
+
+.categories button:hover{
+transform:translateY(-2px);
+box-shadow:0 8px 25px rgba(212,175,55,0.4);
+}
+
+.categories button:active{
+transform:translateY(0);
 }
 
 /* Product Grid */
 
 .products{
 display:grid;
-grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-gap:20px;
-padding:20px;
+grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+gap:28px;
+padding:30px;
+background:linear-gradient(135deg, rgba(0,0,0,0.6) 0%, rgba(212,175,55,0.02) 100%);
 }
 
 .card{
-background:#111;
-padding:15px;
-border-radius:15px;
-border:1px solid #333;
-transition:0.3s;
+background:linear-gradient(135deg, rgba(212,175,55,0.08) 0%, rgba(0,0,0,0.6) 100%);
+padding:20px;
+border-radius:18px;
+border:1.5px solid rgba(212,175,55,0.15);
+transition:all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
 position:relative;
+overflow:hidden;
+box-shadow:0 10px 40px rgba(0,0,0,0.4);
+}
+
+.card::before{
+content:'';
+position:absolute;
+top:0;
+left:-100%;
+width:100%;
+height:100%;
+background:linear-gradient(90deg, transparent, rgba(212,175,55,0.1), transparent);
+transition:left 0.5s ease;
+}
+
+.card:hover::before{
+left:100%;
 }
 
 .card:hover{
-transform:translateY(-5px);
-border-color:gold;
+transform:translateY(-8px);
+border-color:#D4AF37;
+box-shadow:0 20px 60px rgba(212,175,55,0.25);
+background:linear-gradient(135deg, rgba(212,175,55,0.15) 0%, rgba(0,0,0,0.7) 100%);
 }
 
 .card img{
 width:100%;
-height:220px;
+height:240px;
 object-fit:cover;
-border-radius:10px;
+border-radius:14px;
 cursor:pointer;
+transition:all 0.3s ease;
+}
+
+.card:hover img{
+transform:scale(1.05);
 }
 
 .card h3{
-margin-top:10px;
-color:gold;
+margin-top:16px;
+color:#D4AF37;
+font-size:1.15rem;
+letter-spacing:0.5px;
+}
+
+.card p{
+color:#ccc;
+font-size:0.95rem;
+margin:8px 0;
+line-height:1.4;
 }
 
 .price{
-font-size:20px;
-margin:10px 0;
-color:#00ff99;
+font-size:22px;
+margin:12px 0;
+color:#b8ff92;
+font-weight:700;
 }
 
 .btns{
 display:flex;
-gap:10px;
+gap:12px;
 flex-wrap:wrap;
+margin-top:16px;
 }
 
 .btns button{
 flex:1;
-padding:8px;
+padding:12px;
 border:none;
 cursor:pointer;
-border-radius:5px;
-font-weight:bold;
+border-radius:10px;
+font-weight:700;
 font-size:0.95rem;
+transition:all 0.3s ease;
+min-width:80px;
+text-transform:uppercase;
+letter-spacing:0.5px;
 }
 
 .cart-btn{
-background:gold;
+background:linear-gradient(135deg, #D4AF37 0%, #c99f2e 100%);
+color:#000;
+box-shadow:0 4px 15px rgba(212,175,55,0.2);
+}
+
+.cart-btn:hover{
+transform:translateY(-2px);
+box-shadow:0 8px 25px rgba(212,175,55,0.4);
 }
 
 .wish-btn{
-background:#ff0066;
+background:linear-gradient(135deg, #ff0066 0%, #cc0052 100%);
 color:#fff;
+box-shadow:0 4px 15px rgba(255,0,102,0.2);
+}
+
+.wish-btn:hover{
+transform:translateY(-2px);
+box-shadow:0 8px 25px rgba(255,0,102,0.4);
 }
 
 .buy-btn{
-background:#00cc66;
+background:linear-gradient(135deg, #00cc66 0%, #00a84d 100%);
 color:#fff;
+box-shadow:0 4px 15px rgba(0,204,102,0.2);
+}
+
+.buy-btn:hover{
+transform:translateY(-2px);
+box-shadow:0 8px 25px rgba(0,204,102,0.4);
 }
 
 /* Floating Cart */
 
 .floating-cart{
 position:fixed;
-bottom:20px;
-right:20px;
-background:gold;
+bottom:30px;
+right:30px;
+background:linear-gradient(135deg, #D4AF37 0%, #c99f2e 100%);
 color:#000;
-width:60px;
-height:60px;
+width:70px;
+height:70px;
 border-radius:50%;
 display:flex;
 justify-content:center;
 align-items:center;
-font-size:25px;
+font-size:28px;
 cursor:pointer;
 z-index:999;
+box-shadow:0 10px 40px rgba(212,175,55,0.4);
+transition:all 0.3s ease;
+}
+
+.floating-cart:hover{
+transform:scale(1.1);
+box-shadow:0 15px 50px rgba(212,175,55,0.5);
 }
 
 .badge{
 position:absolute;
-top:-5px;
-right:-5px;
-background:red;
+top:-8px;
+right:-8px;
+background:linear-gradient(135deg, #ff0066 0%, #cc0052 100%);
 color:#fff;
-width:22px;
-height:22px;
-font-size:12px;
+width:28px;
+height:28px;
+font-size:13px;
+font-weight:700;
 border-radius:50%;
 display:flex;
 justify-content:center;
 align-items:center;
+box-shadow:0 4px 12px rgba(255,0,102,0.3);
 }
 
 /* Modal */
@@ -494,64 +595,129 @@ top:0;
 left:0;
 width:100%;
 height:100vh;
-background:rgba(0,0,0,0.9);
+background:rgba(0,0,0,0.85);
 display:none;
 justify-content:center;
 align-items:center;
 z-index:9999;
+backdrop-filter:blur(5px);
+animation:fadeInModal 0.3s ease;
+}
+
+@keyframes fadeInModal{
+from{opacity:0;}
+to{opacity:1;}
 }
 
 .modal img{
 max-width:90%;
 max-height:90%;
-border:5px solid gold;
-border-radius:10px;
+border:3px solid #D4AF37;
+border-radius:16px;
+box-shadow:0 20px 80px rgba(212,175,55,0.3);
 }
 
 .order-card{
-background:#111;
-border-radius:20px;
-padding:30px;
+background:linear-gradient(135deg, rgba(212,175,55,0.08) 0%, rgba(0,0,0,0.9) 100%);
+border-radius:24px;
+padding:40px;
 max-width:520px;
-width:100%;
+width:95%;
 position:relative;
-box-shadow:0 30px 80px rgba(0,0,0,0.35);
+box-shadow:0 30px 100px rgba(0,0,0,0.7);
+border:1.5px solid rgba(212,175,55,0.2);
+animation:slideInCard 0.4s cubic-bezier(0.23, 1, 0.320, 1);
+}
+
+@keyframes slideInCard{
+from{opacity:0; transform:translateY(20px);}
+to{opacity:1; transform:translateY(0);}
+}
+
+@keyframes slideInRight{
+from{opacity:0; transform:translateX(100px);}
+to{opacity:1; transform:translateX(0);}
+}
+
+@keyframes slideOutRight{
+from{opacity:1; transform:translateX(0);}
+to{opacity:0; transform:translateX(100px);}
+}
+
+.order-card h2{
+color:#D4AF37;
+margin-bottom:20px;
+font-size:1.4rem;
+letter-spacing:1px;
 }
 
 .close-order{
 position:absolute;
-top:18px;
-right:18px;
-color:#fff;
-font-size:18px;
+top:20px;
+right:20px;
+color:#D4AF37;
+font-size:28px;
 cursor:pointer;
+transition:all 0.3s ease;
+}
+
+.close-order:hover{
+transform:rotate(90deg);
 }
 
 .order-form{
 display:flex;
 flex-direction:column;
-gap:15px;
-margin-top:20px;
+gap:16px;
+margin-top:24px;
 }
 
 .order-form input,
-.order-form textarea{
-padding:14px;
+.order-form textarea,
+.order-form select{
+padding:14px 16px;
 border-radius:12px;
-border:1px solid #333;
-background:#0d0d0d;
+border:1.5px solid rgba(212,175,55,0.2);
+background:rgba(0,0,0,0.6);
 color:#fff;
 outline:none;
+font-family:inherit;
+transition:all 0.3s ease;
+font-size:0.95rem;
+}
+
+.order-form input::placeholder,
+.order-form textarea::placeholder{
+color:#888;
+}
+
+.order-form input:focus,
+.order-form textarea:focus,
+.order-form select:focus{
+border-color:#D4AF37;
+box-shadow:0 0 20px rgba(212,175,55,0.2);
+background:rgba(0,0,0,0.7);
 }
 
 .order-form button{
 padding:14px;
 border:none;
-border-radius:50px;
-background:gold;
+border-radius:12px;
+background:linear-gradient(135deg, #D4AF37 0%, #c99f2e 100%);
 color:#000;
-font-weight:bold;
+font-weight:700;
 cursor:pointer;
+font-size:1rem;
+transition:all 0.3s ease;
+text-transform:uppercase;
+letter-spacing:1px;
+box-shadow:0 4px 20px rgba(212,175,55,0.2);
+margin-top:8px;
+}
+
+.order-form button:hover{
+transform:translateY(-2px);
+box-shadow:0 8px 30px rgba(212,175,55,0.35);
 }
 
 .order-showcase{
@@ -572,23 +738,73 @@ border-radius:16px;
 
 #adminPanel{
 display:none;
-padding:20px;
-background:#111;
-border-top:2px solid gold;
+padding:30px;
+background:linear-gradient(135deg, rgba(212,175,55,0.08) 0%, rgba(0,0,0,0.9) 100%);
+border-top:2px solid rgba(212,175,55,0.3);
+}
+
+#adminPanel h2{
+color:#D4AF37;
+margin-bottom:20px;
+font-size:1.3rem;
+letter-spacing:1px;
 }
 
 .admin-input{
-padding:10px;
-margin:10px 0;
+padding:12px 16px;
+margin:12px 0;
 width:100%;
+border-radius:10px;
+border:1.5px solid rgba(212,175,55,0.2);
+background:rgba(0,0,0,0.6);
+color:#fff;
+font-family:inherit;
+transition:all 0.3s ease;
+}
+
+.admin-input:focus{
+border-color:#D4AF37;
+box-shadow:0 0 15px rgba(212,175,55,0.2);
 }
 
 .admin-btn{
-padding:10px;
-background:gold;
+padding:12px 24px;
+margin:12px 0;
+background:linear-gradient(135deg, #D4AF37 0%, #c99f2e 100%);
 border:none;
 cursor:pointer;
-font-weight:bold;
+font-weight:700;
+border-radius:10px;
+color:#000;
+transition:all 0.3s ease;
+box-shadow:0 4px 15px rgba(212,175,55,0.2);
+}
+
+.admin-btn:hover{
+transform:translateY(-2px);
+box-shadow:0 8px 25px rgba(212,175,55,0.3);
+}
+
+#ordersSection{
+margin-top:30px;
+}
+
+#ordersSection h3{
+color:#D4AF37;
+margin-bottom:16px;
+font-size:1.1rem;
+}
+
+#orderList{
+color:#ccc;
+}
+
+.admin-order-card{
+margin-top:16px;
+padding:18px;
+background:rgba(0,0,0,0.6);
+border:1.5px solid rgba(212,175,55,0.15);
+border-radius:12px;
 }
 
 @media(max-width:768px){
@@ -724,6 +940,14 @@ gap:10px;
 </div>
 </div>
 
+<div class="modal" id="wishlistModal" onclick="if(event.target===this) closeWishlistModal()">
+<div class="order-card" style="max-width:640px; width:100%;">
+<div class="close-order" onclick="closeWishlistModal()">✕</div>
+<h2>My Wishlist</h2>
+<div id="wishlistItemsList" style="margin-top:16px; max-height:380px; overflow-y:auto; color:#fff;"></div>
+</div>
+</div>
+
 <!-- Admin Panel -->
 
 <div id="adminPanel">
@@ -790,7 +1014,37 @@ window.onload = function(){
 setTimeout(function(){
 document.getElementById("splash").style.display = "none";
 document.getElementById("main").style.display = "block";
+setupStorageSyncListener();
 }, 3000);
+}
+
+/* Storage Sync Listener - Real-time updates across all tabs */
+
+function setupStorageSyncListener(){
+window.addEventListener('storage', function(e){
+if(e.key === 'products'){
+products = JSON.parse(e.newValue) || [];
+renderProducts();
+showSyncNotification('✓ Product list updated');
+} else if(e.key === 'goldRate' || e.key === 'silverRate'){
+goldRate = localStorage.getItem("goldRate") || 5000;
+silverRate = localStorage.getItem("silverRate") || 600;
+document.getElementById("goldRate").innerText = goldRate;
+document.getElementById("silverRate").innerText = silverRate;
+showSyncNotification('✓ Rates updated');
+}
+});
+}
+
+function showSyncNotification(message){
+let notif = document.createElement('div');
+notif.style.cssText = 'position:fixed;top:20px;right:20px;background:linear-gradient(135deg,rgba(184,255,146,0.2) 0%,rgba(212,175,55,0.2) 100%);border:1.5px solid #b8ff92;color:#b8ff92;padding:12px 16px;border-radius:8px;z-index:9999;font-weight:700;animation:slideInRight 0.3s ease;box-shadow:0 8px 24px rgba(0,0,0,0.4);';
+notif.innerText = message;
+document.body.appendChild(notif);
+setTimeout(function(){
+notif.style.animation = 'slideOutRight 0.3s ease';
+setTimeout(function(){notif.remove();}, 300);
+}, 2500);
 }
 
 /* Scroll to products */
@@ -1308,31 +1562,55 @@ function closeCartModal(){
 document.getElementById("cartModal").style.display = "none";
 }
 
+
+function closeWishlistModal(){
+document.getElementById("wishlistModal").style.display = "none";
+}
+
+function renderWishlistItems(){
+let container = document.getElementById("wishlistItemsList");
+
+if(wishlist.length === 0){
+container.innerHTML = "<div style='text-align:center;padding:30px;color:#999;'>Your wishlist is empty</div>";
+return;
+}
+
+container.innerHTML = wishlist.map((id, index) => {
+let product = products.find(item => item.id === id);
+if(!product) return '';
+
+return `<div style="margin-bottom:16px;padding:14px;background:rgba(0,0,0,0.4);border:1px solid rgba(212,175,55,0.15);border-radius:12px;display:flex;gap:12px;align-items:center;justify-content:space-between;">
+  <div style="flex:1;">
+    <div style="font-weight:700;color:#D4AF37;margin-bottom:4px;">${product.name}</div>
+    <div style="color:#b8ff92;font-size:0.9rem;">${product.metal}${product.weight ? ' • ' + product.weight + 'g' : ''}</div>
+    ${product.details ? `<div style="color:#ccc;font-size:0.85rem;margin-top:6px;">${product.details}</div>` : ''}
+  </div>
+  <div style="display:flex;gap:8px;">
+    <button style="padding:8px 12px;background:linear-gradient(135deg,#D4AF37 0%,#c99f2e 100%);color:#000;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-size:0.85rem;transition:all 0.3s ease;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 20px rgba(212,175,55,0.3)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='none'" onclick="addToCart(${product.id})">Add to Cart</button>
+    <button style="padding:8px 12px;background:rgba(255,0,102,0.15);color:#ff0066;border:1px solid #ff0066;border-radius:8px;cursor:pointer;font-weight:700;font-size:0.85rem;transition:all 0.3s ease;" onmouseover="this.style.background='rgba(255,0,102,0.25)'" onmouseout="this.style.background='rgba(255,0,102,0.15)'" onclick="removeFromWishlist(${product.id})">Remove</button>
+  </div>
+</div>`;
+}).join('');
+}
+
+function removeFromWishlist(id){
+let index = wishlist.indexOf(id);
+if(index !== -1){
+wishlist.splice(index, 1);
+saveWishlist();
+renderWishlistItems();
+renderProducts();
+}
+}
+
 function openWishlist(){
 if(wishlist.length === 0){
 alert("Your wishlist is empty.");
 return;
 }
 
-let list = wishlist.map((id, index) => {
-let product = products.find(item => item.id === id);
-return product ? `${index + 1}. ${product.name}` : `${index + 1}. Item #${id}`;
-}).join("\n");
-
-let choice = prompt(`Wishlist:\n${list}\n\nEnter the item number to remove, or leave blank to keep all.`);
-if(choice === null || choice.trim() === "") return;
-
-let removeIndex = parseInt(choice, 10) - 1;
-if(isNaN(removeIndex) || removeIndex < 0 || removeIndex >= wishlist.length){
-alert("Invalid selection.");
-return;
-}
-
-let removedId = wishlist.splice(removeIndex, 1)[0];
-saveWishlist();
-renderProducts();
-let removedProduct = products.find(item => item.id === removedId);
-alert(removedProduct ? `${removedProduct.name} removed from wishlist.` : "Item removed from wishlist.");
+renderWishlistItems();
+document.getElementById("wishlistModal").style.display = "flex";
 }
 
 function toggleWishlist(id){
@@ -1350,37 +1628,23 @@ renderProducts();
 }
 
 function displayOrders(){
-let container = document.getElementById("orderList");
-
-if(orders.length === 0){
-container.innerHTML = "No orders yet.";
-return;
-}
-
-container.innerHTML = orders.map(order => {
-let product = order.product ? `<div><strong>Product:</strong> ${order.product.name}</div><div>Metal: ${order.product.metal}</div><div>Quantity: ${order.quantity ? order.quantity + 'g' : order.product.weight ? order.product.weight + 'g' : 'N/A'}</div>${order.product.details ? `<div>${order.product.details}</div>` : ''}${order.product.hallmark ? `<div class=\"hallmark\"><strong>Hallmark:</strong> ${order.product.hallmark}</div>` : ''}` : '<div>Product details unavailable</div>';
-return `<div style="margin-bottom:18px;padding:15px;border:1px solid #333;border-radius:14px;background:#121212;"><div><strong>Customer:</strong> ${order.customerName}</div><div><strong>Contact:</strong> ${order.contactNumber}</div><div><strong>Address:</strong> ${order.address}</div>${product}</div>`;
-}).join('');
-}
-
-function displayOrders(){
  let container = document.getElementById("orderList");
  if(orders.length === 0){
-  container.innerHTML = "No orders yet.";
+  container.innerHTML = "<div style='text-align:center;padding:30px;color:#999;'>No orders yet.</div>";
   return;
  }
  container.innerHTML = orders.map(order => {
   let orderDetails = '';
   if(order.cartItems){
-   orderDetails = `<div><strong>Cart Items:</strong></div>` + order.cartItems.map((item, index) => `
-     <div style="margin-bottom:8px;"><strong>${index + 1}.</strong> ${item.name}${item.metal ? ` (${item.metal})` : ''} — ${item.quantity}g</div>`).join('');
+   orderDetails = `<div style="margin-top:12px;"><strong style="color:#D4AF37;">Cart Items:</strong></div>` + order.cartItems.map((item, index) => `
+     <div style="margin-bottom:8px;padding:8px;background:rgba(0,0,0,0.4);border-radius:8px;border-left:3px solid #D4AF37;"><strong>${index + 1}.</strong> <span style="color:#fff;">${item.name}</span><span style="color:#b8ff92;">${item.metal ? ` (${item.metal})` : ''}</span> — <span style="color:#D4AF37;font-weight:700;">${item.quantity}g</span></div>`).join('');
   } else if(order.product){
-   orderDetails = `<div><strong>Product:</strong> ${order.product.name}</div><div>Metal: ${order.product.metal}</div><div>Quantity: ${order.quantity ? order.quantity + 'g' : order.product.weight ? order.product.weight + 'g' : 'N/A'}</div>${order.product.details ? `<div>${order.product.details}</div>` : ''}${order.product.hallmark ? `<div class="hallmark"><strong>Hallmark:</strong> ${order.product.hallmark}</div>` : ''}`;
+   orderDetails = `<div style="margin-top:12px;"><strong style="color:#D4AF37;">Product:</strong> <span style="color:#fff;">${order.product.name}</span></div><div style="color:#b8ff92;">Metal: ${order.product.metal}</div><div style="color:#fff;">Quantity: <span style="color:#D4AF37;font-weight:700;">${order.quantity ? order.quantity + 'g' : order.product.weight ? order.product.weight + 'g' : 'N/A'}</span></div>${order.product.details ? `<div style="color:#ccc;margin-top:8px;">${order.product.details}</div>` : ''}${order.product.hallmark ? `<div class="hallmark" style="color:#b8ff92;margin-top:8px;"><strong>Hallmark:</strong> ${order.product.hallmark}</div>` : ''}`;
   } else {
-   orderDetails = '<div>Product details unavailable</div>';
+   orderDetails = '<div style="color:#999;">Product details unavailable</div>';
   }
   let orderTime = order.orderDate ? new Date(order.orderDate).toLocaleString() : 'N/A';
-  return `<div style="margin-bottom:18px;padding:15px;border:1px solid #333;border-radius:14px;background:#121212;"><div><strong>Order ID:</strong> ${order.orderId}</div><div><strong>Order Time:</strong> ${orderTime}</div><div><strong>Customer:</strong> ${order.customerName}</div><div><strong>Email:</strong> ${order.customerEmail || 'N/A'}</div><div><strong>Contact:</strong> ${order.contactNumber}</div><div><strong>Address:</strong> ${order.address}</div><div><strong>Pincode:</strong> ${order.pincode || 'N/A'}</div><div><strong>Payment:</strong> ${order.paymentMethod || 'COD'}</div>${orderDetails}</div>`;
+  return `<div class="admin-order-card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;border-bottom:1px solid rgba(212,175,55,0.2);padding-bottom:12px;"><div><strong style="color:#D4AF37;font-size:0.95rem;">Order ID:</strong> <span style="color:#fff;">${order.orderId}</span></div><div style="color:#b8ff92;font-size:0.85rem;">${orderTime}</div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;"><div><strong style="color:#D4AF37;">Customer:</strong> <span style="color:#fff;">${order.customerName}</span></div><div><strong style="color:#D4AF37;">Email:</strong> <span style="color:#ccc;">${order.customerEmail || 'N/A'}</span></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;"><div><strong style="color:#D4AF37;">Contact:</strong> <span style="color:#fff;">${order.contactNumber}</span></div><div><strong style="color:#D4AF37;">Pincode:</strong> <span style="color:#fff;">${order.pincode || 'N/A'}</span></div></div><div style="margin-bottom:12px;"><strong style="color:#D4AF37;">Address:</strong> <span style="color:#ccc;">${order.address}</span></div><div style="padding:8px 12px;background:rgba(212,175,55,0.1);border-radius:8px;border:1px solid rgba(212,175,55,0.2);margin-bottom:12px;"><strong style="color:#D4AF37;">Payment Method:</strong> <span style="color:#fff;">${order.paymentMethod || 'COD'}</span></div>${orderDetails}</div>`;
  }).join('');
 }
 
@@ -1564,7 +1828,16 @@ localStorage.setItem("products",JSON.stringify(products));
 
 renderProducts();
 
-alert("Product Added");
+document.getElementById("pname").value = "";
+document.getElementById("pweight").value = "";
+document.getElementById("pmetal").value = "";
+document.getElementById("pcategory").value = "";
+document.getElementById("pimg").value = "";
+document.getElementById("pdetails").value = "";
+document.getElementById("phallmark").value = "";
+document.getElementById("ppurity").value = "";
+
+alert("✓ Product Added Successfully!\n\nThis product is now visible to all users.");
 
 }
 
@@ -1572,21 +1845,29 @@ alert("Product Added");
 
 function updateRates(){
 
-goldRate = document.getElementById("newGold").value;
+let newGold = document.getElementById("newGold").value;
+let newSilver = document.getElementById("newSilver").value;
 
-silverRate = document.getElementById("newSilver").value;
+if(!newGold || !newSilver || isNaN(newGold) || isNaN(newSilver)){
+alert("Please enter valid rates for both gold and silver.");
+return;
+}
+
+goldRate = newGold;
+silverRate = newSilver;
 
 localStorage.setItem("goldRate",goldRate);
-
 localStorage.setItem("silverRate",silverRate);
 
 document.getElementById("goldRate").innerText = goldRate;
-
 document.getElementById("silverRate").innerText = silverRate;
+
+document.getElementById("newGold").value = "";
+document.getElementById("newSilver").value = "";
 
 renderProducts();
 
-alert("Rates Updated");
+alert("✓ Rates Updated Successfully!\n\nGold: ₹" + goldRate + "/g\nSilver: ₹" + silverRate + "/g\n\nAll users can see the new rates.");
 
 }
 
